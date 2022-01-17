@@ -59,3 +59,7 @@ sysinfo.txt
 crashlytics-build.properties
 
 .vsconfig
+
+# Sketchfab Settings File
+**/SketchfabSettings.asset
+Sketchfab Wrapper/Assets/Sketchfab/Resources/
