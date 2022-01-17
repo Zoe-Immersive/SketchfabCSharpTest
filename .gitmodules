@@ -1,0 +1,3 @@
+[submodule "SketchfabCSharpTest/Assets/SketchfabCSharp"]
+	path = SketchfabCSharpTest/Assets/SketchfabCSharp
+	url = https://github.com/Zoe-Immersive/SketchfabCSharp.git
