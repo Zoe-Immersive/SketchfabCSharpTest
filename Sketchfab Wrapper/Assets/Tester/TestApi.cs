@@ -55,21 +55,22 @@ public class TestApi : MonoBehaviour
 
     public void GetModelList()
     {
+        UnityWebRequestSketchfabModelList.Parameters p = new UnityWebRequestSketchfabModelList.Parameters();
+        p.downloadable = true;
+        SketchfabAPI.GetModelList(p, ((SketchfabResponse<SketchfabModelList> _answer) =>
+         {
+             SketchfabResponse<SketchfabModelList> ans = _answer;
+             m_ModelList = ans.Object.Models;
+         }));
+
         //UnityWebRequestSketchfabModelList.Parameters p = new UnityWebRequestSketchfabModelList.Parameters();
         //p.downloadable = true;
-        //SketchfabAPI.GetModelList(p,((SketchfabResponse<SketchfabModelList> _answer) =>
+        //string searchKeyword = "Cat";
+        //SketchfabAPI.ModelSearch(((SketchfabResponse<SketchfabModelList> _answer) =>
         //{
         //    SketchfabResponse<SketchfabModelList> ans = _answer;
         //    m_ModelList = ans.Object.Models;
-        //}));
-        UnityWebRequestSketchfabModelList.Parameters p = new UnityWebRequestSketchfabModelList.Parameters();
-        p.downloadable = true;
-        string searchKeyword = "Cat";
-        SketchfabAPI.ModelSearch(((SketchfabResponse<SketchfabModelList> _answer) =>
-        {
-            SketchfabResponse<SketchfabModelList> ans = _answer;
-            m_ModelList = ans.Object.Models;
-        }), p, searchKeyword, "white");
+        //}), p, searchKeyword);
     }
 
     private void OnGUI()
@@ -139,7 +140,7 @@ public class TestApi : MonoBehaviour
 
     private void DownloadModel(string _guid)
     {
-        bool disableCache = true;
+        bool enableCache = false;
         SketchfabAPI.GetModel(_guid, (resp) =>
         {
             SketchfabModelImporter.Import(resp.Object, (obj) =>
@@ -148,7 +149,7 @@ public class TestApi : MonoBehaviour
                 {
                     m_CameraController.PlaceObjectInFront(obj);
                 }
-            }, disableCache);
-        }, disableCache);
+            }, enableCache);
+        }, enableCache);
     }
 }
