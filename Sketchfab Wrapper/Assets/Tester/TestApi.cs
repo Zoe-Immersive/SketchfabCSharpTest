@@ -24,7 +24,6 @@ public class TestApi : MonoBehaviour
             {
                 m_AccessToken = answer.Object.AccessToken;
                 SketchfabAPI.AuthorizeWithAccessToken(answer.Object);
-                Debug.Log(answer.Object.ToString());
 
                 GetUserInformation();
                 GetModelList();
@@ -63,6 +62,7 @@ public class TestApi : MonoBehaviour
              m_ModelList = ans.Object.Models;
          }));
 
+        // Search code
         //UnityWebRequestSketchfabModelList.Parameters p = new UnityWebRequestSketchfabModelList.Parameters();
         //p.downloadable = true;
         //string searchKeyword = "Cat";
@@ -71,6 +71,22 @@ public class TestApi : MonoBehaviour
         //    SketchfabResponse<SketchfabModelList> ans = _answer;
         //    m_ModelList = ans.Object.Models;
         //}), p, searchKeyword);
+    }
+
+
+    private void DownloadModel(string _guid)
+    {
+        bool enableCache = true;
+        SketchfabAPI.GetModel(_guid, (resp) =>
+        {
+            SketchfabModelImporter.Import(resp.Object, (obj) =>
+            {
+                if (obj != null)
+                {
+                    m_CameraController.PlaceObjectInFront(obj);
+                }
+            }, enableCache);
+        }, enableCache);
     }
 
     private void OnGUI()
@@ -138,18 +154,4 @@ public class TestApi : MonoBehaviour
         }
     }
 
-    private void DownloadModel(string _guid)
-    {
-        bool enableCache = false;
-        SketchfabAPI.GetModel(_guid, (resp) =>
-        {
-            SketchfabModelImporter.Import(resp.Object, (obj) =>
-            {
-                if(obj != null)
-                {
-                    m_CameraController.PlaceObjectInFront(obj);
-                }
-            }, enableCache);
-        }, enableCache);
-    }
 }
