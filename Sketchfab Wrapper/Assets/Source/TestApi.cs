@@ -9,6 +9,7 @@ public class TestApi : MonoBehaviour
     public static event Action OnLogin;
     public static event Action OnLogout;
     public static event Action<SketchfabUserInfo> OnUserInformation;
+    public static event Action<List<SketchfabModel>> OnModelList;
 
     public static void Login(string _email, string _password)
     {
@@ -23,6 +24,7 @@ public class TestApi : MonoBehaviour
                 OnLogin?.Invoke();
 
                 GetAccountInformation();
+                GetDefaultModelList();
             }
             else
             {
@@ -54,7 +56,7 @@ public class TestApi : MonoBehaviour
         });
     }
 
-    public static void GetModelList()
+    public static void GetDefaultModelList()
     {
         UnityWebRequestSketchfabModelList.Parameters p = new UnityWebRequestSketchfabModelList.Parameters();
         p.downloadable = true;
@@ -62,6 +64,7 @@ public class TestApi : MonoBehaviour
         {
             SketchfabResponse<SketchfabModelList> ans = _answer;
             List<SketchfabModel> modelList = ans.Object.Models;
+            OnModelList?.Invoke(modelList);
         }));
     }
 
@@ -72,12 +75,13 @@ public class TestApi : MonoBehaviour
         SketchfabAPI.ModelSearch(((SketchfabResponse<SketchfabModelList> _answer) =>
         {
             SketchfabResponse<SketchfabModelList> ans = _answer;
-            List<SketchfabModel> m_ModelList = ans.Object.Models;
+            List<SketchfabModel> modelList = ans.Object.Models;
+            OnModelList?.Invoke(modelList);
         }), p, _query);
     }
 
 
-    private static void DownloadModel(string _guid)
+    public static void DownloadModel(string _guid)
     {
         bool enableCache = true;
         SketchfabAPI.GetModel(_guid, (resp) =>
@@ -90,5 +94,22 @@ public class TestApi : MonoBehaviour
                 }
             }, enableCache);
         }, enableCache);
+    }
+
+    public static void GetAssetThumbnail(string _guid, Action<Sprite> _onThumbnailDownloaded)
+    {
+        SketchfabAPI.GetModel(_guid, async (SketchfabResponse<SketchfabModel> _sketchfabModel) =>
+        {
+            if (_sketchfabModel.Success)
+            {
+                Sprite sprite = await SketchfabThumbnailImporter.ImportAsync(_sketchfabModel.Object.Thumbnails.ClosestThumbnailToSizeWithoutGoingBelow(256, 256));
+
+                _onThumbnailDownloaded?.Invoke(sprite);
+            }
+            else
+            {
+                Debug.LogError(_sketchfabModel.ErrorMessage);
+            }
+        }, true); // Enable the cache system as we don't need to download the asset info again
     }
 }
