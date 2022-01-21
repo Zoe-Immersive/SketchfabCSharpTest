@@ -23,8 +23,9 @@ public class UIModelFactory
             toReturn = m_Stock[m_Stock.Count - 1];
             m_Stock.RemoveAt(m_Stock.Count - 1);
         }
-        toReturn.transform.SetParent(m_Prefab.transform.parent);
+        toReturn.transform.SetParent(m_Prefab.transform.parent, false);
         toReturn.gameObject.SetActive(true);
+        toReturn.transform.localScale = Vector3.one;
         return toReturn;
     }
 
