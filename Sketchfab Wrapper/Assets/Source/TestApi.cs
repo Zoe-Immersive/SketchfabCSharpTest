@@ -6,10 +6,22 @@ using UnityEngine;
 public class TestApi : MonoBehaviour
 {
 
+    public static TestApi Instance;
     public static event Action OnLogin;
     public static event Action OnLogout;
     public static event Action<SketchfabUserInfo> OnUserInformation;
     public static event Action<List<SketchfabModel>> OnModelList;
+
+    public int MaxVertexCount = 10000;
+    public int MaxFaceCount = 10000;
+
+    public int MaxTextureResolution = 1024;
+
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     public static void Login(string _email, string _password)
     {
@@ -56,11 +68,20 @@ public class TestApi : MonoBehaviour
         });
     }
 
-    public static void GetDefaultModelList()
+    private static UnityWebRequestSketchfabModelList.Parameters GetParameters()
     {
         UnityWebRequestSketchfabModelList.Parameters p = new UnityWebRequestSketchfabModelList.Parameters();
         p.downloadable = true;
-        SketchfabAPI.GetModelList(p, ((SketchfabResponse<SketchfabModelList> _answer) =>
+        p.archives_texture_max_resolution = Instance.MaxTextureResolution;
+        p.maxVertexCount = Instance.MaxVertexCount;
+        p.maxFaceCount = Instance.MaxFaceCount;
+        return p;
+    }
+
+    public static void GetDefaultModelList()
+    {
+
+        SketchfabAPI.GetModelList(GetParameters(), ((SketchfabResponse<SketchfabModelList> _answer) =>
         {
             SketchfabResponse<SketchfabModelList> ans = _answer;
             List<SketchfabModel> modelList = ans.Object.Models;
@@ -70,14 +91,12 @@ public class TestApi : MonoBehaviour
 
     public static void SearchModel(string _query)
     {
-        UnityWebRequestSketchfabModelList.Parameters p = new UnityWebRequestSketchfabModelList.Parameters();
-        p.downloadable = true;
         SketchfabAPI.ModelSearch(((SketchfabResponse<SketchfabModelList> _answer) =>
         {
             SketchfabResponse<SketchfabModelList> ans = _answer;
             List<SketchfabModel> modelList = ans.Object.Models;
             OnModelList?.Invoke(modelList);
-        }), p, _query);
+        }), GetParameters(), _query);
     }
 
 
